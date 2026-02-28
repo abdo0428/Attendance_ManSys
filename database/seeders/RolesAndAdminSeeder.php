@@ -16,6 +16,7 @@ class RolesAndAdminSeeder extends Seeder
             'employees.view','employees.create','employees.update','employees.delete',
             'attendance.view','attendance.checkin','attendance.checkout','attendance.update','attendance.delete',
             'reports.view',
+            'settings.manage','users.manage','audit.view',
         ];
 
         foreach ($perms as $p) {

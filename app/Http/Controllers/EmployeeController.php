@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -15,15 +16,72 @@ class EmployeeController extends Controller
 
     public function data(Request $request)
     {
-        $q = Employee::query();
+        $q = Employee::query()
+            ->select(['id','full_name','email','phone','job_title','is_active']);
 
-        return datatables()->of($q)
-            ->addColumn('status', fn($e) => $e->is_active ? 'Active' : 'Inactive')
-            ->addColumn('actions', function ($e) {
-                return view('employees.partials.actions', compact('e'))->render();
-            })
-            ->rawColumns(['actions'])
-            ->make(true);
+        $status = $request->get('status');
+        if ($status === 'active') {
+            $q->where('is_active', true);
+        }
+        if ($status === 'inactive') {
+            $q->where('is_active', false);
+        }
+        $recordsTotal = (clone $q)->count();
+
+        $search = trim((string) $request->input('search.value', ''));
+        if ($search !== '') {
+            $q->where(function ($sub) use ($search) {
+                $sub->where('full_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('job_title', 'like', "%{$search}%");
+            });
+        }
+
+        $recordsFiltered = (clone $q)->count();
+
+        $orderIdx = (int) $request->input('order.0.column', 0);
+        $orderDir = $request->input('order.0.dir', 'asc') === 'desc' ? 'desc' : 'asc';
+        $columns = $request->input('columns', []);
+        $orderColumn = $columns[$orderIdx]['data'] ?? 'id';
+
+        $columnMap = [
+            'id' => 'id',
+            'full_name' => 'full_name',
+            'email' => 'email',
+            'phone' => 'phone',
+            'job_title' => 'job_title',
+            'status' => 'is_active',
+        ];
+
+        $q->orderBy($columnMap[$orderColumn] ?? 'id', $orderDir);
+
+        $start = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+        if ($length > 0) {
+            $q->skip($start)->take($length);
+        }
+
+        $rows = $q->get();
+
+        $data = $rows->map(function ($e) {
+            return [
+                'id' => $e->id,
+                'full_name' => $e->full_name,
+                'email' => $e->email,
+                'phone' => $e->phone,
+                'job_title' => $e->job_title,
+                'status' => $e->is_active ? __('app.status_active') : __('app.status_inactive'),
+                'actions' => view('employees.partials.actions', compact('e'))->render(),
+            ];
+        });
+
+        return response()->json([
+            'draw' => (int) $request->input('draw', 1),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $data,
+        ]);
     }
 
     public function store(Request $request)
@@ -63,7 +121,10 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee)
     {
+        $employee->is_active = false;
+        $employee->save();
         $employee->delete();
+        AuditLog::record('employee.deleted', $employee);
         return response()->json(['ok' => true]);
     }
 }
