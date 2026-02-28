@@ -13,8 +13,9 @@ class DashboardController extends Controller
         $today = now()->toDateString();
         $monthStart = now()->startOfMonth()->toDateString();
         $monthEnd = now()->endOfMonth()->toDateString();
+        $companyKey = auth()->user()?->company_id ?? 'global';
 
-        $stats = Cache::remember('dashboard.stats', 60, function () use ($today, $monthStart, $monthEnd) {
+        $stats = Cache::remember("dashboard.stats.{$companyKey}", 60, function () use ($today, $monthStart, $monthEnd) {
             $activeEmployees = Employee::where('is_active', true)->count();
 
             $todayCheckIns = AttendanceLog::whereDate('work_date', $today)
@@ -48,4 +49,3 @@ class DashboardController extends Controller
         ]);
     }
 }
-

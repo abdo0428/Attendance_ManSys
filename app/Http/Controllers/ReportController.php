@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ReportController extends Controller
 {
@@ -19,7 +20,7 @@ class ReportController extends Controller
     public function monthlyData(Request $request)
     {
         $validated = $request->validate([
-            'employee_id' => ['required','exists:employees,id'],
+            'employee_id' => ['required', Rule::exists('employees', 'id')->where(fn ($q) => $q->where('company_id', $request->user()->company_id))],
             'month' => ['required','date_format:Y-m'], // ????????: 2026-02
         ]);
 
@@ -70,7 +71,7 @@ class ReportController extends Controller
     public function exportCsv(Request $request)
     {
         $validated = $request->validate([
-            'employee_id' => ['required','exists:employees,id'],
+            'employee_id' => ['required', Rule::exists('employees', 'id')->where(fn ($q) => $q->where('company_id', $request->user()->company_id))],
             'month' => ['required','date_format:Y-m'],
         ]);
 

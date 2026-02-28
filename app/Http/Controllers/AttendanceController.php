@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AttendanceController extends Controller
 {
@@ -99,7 +100,7 @@ class AttendanceController extends Controller
     public function checkIn(Request $request)
     {
         $validated = $request->validate([
-            'employee_id' => ['required','exists:employees,id'],
+            'employee_id' => ['required', Rule::exists('employees', 'id')->where(fn ($q) => $q->where('company_id', $request->user()->company_id))],
             'work_date' => ['required','date'],
             'check_in_time' => ['required','date_format:H:i'],
         ]);
@@ -131,7 +132,7 @@ class AttendanceController extends Controller
     public function checkOut(Request $request)
     {
         $validated = $request->validate([
-            'employee_id' => ['required','exists:employees,id'],
+            'employee_id' => ['required', Rule::exists('employees', 'id')->where(fn ($q) => $q->where('company_id', $request->user()->company_id))],
             'work_date' => ['required','date'],
             'check_out_time' => ['required','date_format:H:i'],
         ]);
@@ -202,7 +203,7 @@ class AttendanceController extends Controller
     public function markAbsent(Request $request)
     {
         $validated = $request->validate([
-            'employee_id' => ['required','exists:employees,id'],
+            'employee_id' => ['required', Rule::exists('employees', 'id')->where(fn ($q) => $q->where('company_id', $request->user()->company_id))],
             'work_date' => ['required','date'],
         ]);
 

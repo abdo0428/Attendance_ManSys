@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'onboarded_at',
+        'company_id',
     ];
 
     /**
@@ -46,5 +47,10 @@ class User extends Authenticatable
             'password' => 'hashed',
             'onboarded_at' => 'datetime',
         ];
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }

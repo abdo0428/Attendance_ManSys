@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class OnboardingController extends Controller
 {
@@ -26,7 +27,7 @@ class OnboardingController extends Controller
     {
         $rules = [
             'employee_full_name' => ['nullable', 'string', 'max:255'],
-            'employee_email' => ['nullable', 'email', 'max:255'],
+            'employee_email' => ['nullable', 'email', 'max:255', Rule::unique('employees', 'email')->where(fn ($q) => $q->where('company_id', $request->user()->company_id))],
             'employee_job_title' => ['nullable', 'string', 'max:100'],
             'default_work_start' => ['required', 'date_format:H:i'],
             'default_work_end' => ['required', 'date_format:H:i'],
@@ -63,4 +64,3 @@ class OnboardingController extends Controller
         return redirect()->route('dashboard');
     }
 }
-

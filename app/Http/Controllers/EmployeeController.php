@@ -88,7 +88,7 @@ class EmployeeController extends Controller
     {
         $validated = $request->validate([
             'full_name' => ['required','string','max:255'],
-            'email' => ['nullable','email','max:255', Rule::unique('employees','email')],
+            'email' => ['nullable','email','max:255', Rule::unique('employees','email')->where(fn ($q) => $q->where('company_id', $request->user()->company_id))],
             'phone' => ['nullable','string','max:50'],
             'job_title' => ['nullable','string','max:100'],
             'is_active' => ['required','boolean'],
@@ -108,7 +108,7 @@ class EmployeeController extends Controller
     {
         $validated = $request->validate([
             'full_name' => ['required','string','max:255'],
-            'email' => ['nullable','email','max:255', Rule::unique('employees','email')->ignore($employee->id)],
+            'email' => ['nullable','email','max:255', Rule::unique('employees','email')->ignore($employee->id)->where(fn ($q) => $q->where('company_id', $request->user()->company_id))],
             'phone' => ['nullable','string','max:50'],
             'job_title' => ['nullable','string','max:100'],
             'is_active' => ['required','boolean'],

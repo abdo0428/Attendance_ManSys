@@ -104,6 +104,8 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     // Users & Roles
     Route::get('/users', [UserController::class, 'index'])
         ->name('users.index')->middleware('can:users.manage');
+    Route::post('/users', [UserController::class, 'store'])
+        ->name('users.store')->middleware('can:users.manage');
     Route::post('/users/{user}/role', [UserController::class, 'updateRole'])
         ->name('users.role.update')->middleware('can:users.manage');
 
@@ -119,3 +121,6 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
 
 require __DIR__.'/auth.php';
 
+// need saas and multi-tenancy support,
+// make the admin can create users and edit it ,
+// edit views styles 

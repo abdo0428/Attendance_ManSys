@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -37,10 +39,21 @@ class RolesAndAdminSeeder extends Seeder
             'employees.view','attendance.view','reports.view'
         ]);
 
+        $company = Company::firstOrCreate(['name' => 'Default Company']);
+        Setting::setValue('company_name', $company->name, $company->id);
+
         $admin = User::firstOrCreate(
             ['email' => 'admin@test.com'],
             ['name' => 'Admin', 'password' => Hash::make('123456789')]
         );
+        if (!$admin->company_id) {
+            $admin->company_id = $company->id;
+            $admin->save();
+        }
+        if (!$company->owner_user_id) {
+            $company->owner_user_id = $admin->id;
+            $company->save();
+        }
         $admin->assignRole('admin');
     }
 }

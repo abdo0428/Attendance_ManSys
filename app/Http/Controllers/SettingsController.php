@@ -34,9 +34,14 @@ class SettingsController extends Controller
             Setting::setValue($key, (string) $value);
         }
 
+        $company = $request->user()?->company;
+        if ($company && $company->name !== $validated['company_name']) {
+            $company->name = $validated['company_name'];
+            $company->save();
+        }
+
         session(['locale' => $validated['default_locale']]);
 
         return redirect()->route('settings.edit')->with('toast', ['type' => 'success', 'message' => __('app.settings_saved')]);
     }
 }
-
