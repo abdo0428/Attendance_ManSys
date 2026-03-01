@@ -1,0 +1,43 @@
+<?php
+
+return [
+    'required' => 'حقل :attribute مطلوب.',
+    'email' => 'يجب أن يكون :attribute بريدًا إلكترونيًا صحيحًا.',
+    'string' => 'يجب أن يكون :attribute نصًا.',
+    'integer' => 'يجب أن يكون :attribute رقمًا صحيحًا.',
+    'unique' => 'قيمة :attribute مستخدمة من قبل.',
+    'exists' => 'قيمة :attribute غير صالحة.',
+    'in' => 'قيمة :attribute المختارة غير صالحة.',
+    'confirmed' => 'تأكيد :attribute غير متطابق.',
+    'current_password' => 'كلمة المرور الحالية غير صحيحة.',
+    'date_format' => 'صيغة :attribute غير صحيحة.',
+    'min' => [
+        'numeric' => 'يجب ألا تقل قيمة :attribute عن :min.',
+        'string' => 'يجب ألا يقل :attribute عن :min أحرف.',
+    ],
+    'max' => [
+        'numeric' => 'يجب ألا تزيد قيمة :attribute عن :max.',
+        'string' => 'يجب ألا يزيد :attribute عن :max أحرف.',
+    ],
+    'attributes' => [
+        'company_name' => 'اسم الشركة',
+        'name' => 'الاسم',
+        'email' => 'البريد الإلكتروني',
+        'password' => 'كلمة المرور',
+        'password_confirmation' => 'تأكيد كلمة المرور',
+        'current_password' => 'كلمة المرور الحالية',
+        'default_locale' => 'اللغة الافتراضية',
+        'default_work_start' => 'بداية الدوام الافتراضية',
+        'default_work_end' => 'نهاية الدوام الافتراضية',
+        'grace_minutes' => 'فترة السماح',
+        'employee_full_name' => 'اسم الموظف',
+        'employee_email' => 'بريد الموظف الإلكتروني',
+        'employee_job_title' => 'وظيفة الموظف',
+        'employee_id' => 'الموظف',
+        'check_in' => 'وقت الدخول',
+        'check_out' => 'وقت الخروج',
+        'work_date' => 'تاريخ العمل',
+        'month' => 'الشهر',
+        'role' => 'الدور',
+    ],
+];

@@ -11,7 +11,7 @@
   <title>{{ $appName }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   @if($isRtl)
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
   @else
@@ -19,24 +19,22 @@
   @endif
   <style>
     body {
-      font-family: 'Manrope', sans-serif;
-      background: radial-gradient(circle at 20% 20%, #edf2ff, transparent 50%),
-                  radial-gradient(circle at 80% 0%, #fff7ed, transparent 45%),
-                  #f8fafc;
+      font-family: 'Inter', 'Cairo', sans-serif;
+      background: #f8fafc;
     }
     .hero {
       padding: 80px 0 60px;
     }
     .hero-card {
-      background: linear-gradient(135deg, #111827, #1f2937);
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
       color: #f9fafb;
       border-radius: 24px;
       padding: 32px;
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
     }
     .badge-pill {
-      background: #fff;
-      color: #111827;
+      background: #e2e8f0;
+      color: #0f172a;
       border-radius: 999px;
       padding: 6px 14px;
       font-size: 0.85rem;
@@ -57,19 +55,44 @@
       height: 100%;
     }
     .cta-strip {
-      background: #111827;
+      background: #0f172a;
       color: #fff;
       border-radius: 20px;
       padding: 24px;
     }
     footer a { color: #475569; text-decoration: none; }
   </style>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  @if($isRtl)
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  @else
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  @endif
+
+  <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 <body>
   <nav class="navbar navbar-expand-lg">
     <div class="container">
       <a class="navbar-brand fw-bold" href="#">{{ $appName }}</a>
       <div class="d-flex gap-2">
+                <div class="dropdown">
+          <button class="btn btn-icon btn-text dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ strtoupper($currentLocale) }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end {{ $isRtl ? 'text-end' : '' }}">
+            <li><a class="dropdown-item" href="{{ route('locale.switch', ['locale' => 'en']) }}">{{ __('app.lang_english') }}</a></li>
+            <li><a class="dropdown-item" href="{{ route('locale.switch', ['locale' => 'ar']) }}">{{ __('app.lang_arabic') }}</a></li>
+            <li><a class="dropdown-item" href="{{ route('locale.switch', ['locale' => 'tr']) }}">{{ __('app.lang_turkish') }}</a></li>
+          </ul>
+        </div>
         @if (Route::has('login'))
           <a class="btn btn-outline-dark" href="{{ route('login') }}">{{ __('app.btn_login') }}</a>
         @endif
@@ -235,6 +258,11 @@
       </div>
     </div>
   </footer>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
 </body>
 </html>
 

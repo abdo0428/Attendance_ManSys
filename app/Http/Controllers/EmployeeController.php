@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\AttendanceLog;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -11,7 +12,9 @@ class EmployeeController extends Controller
 {
     public function index()
     {
-        return view('employees.index');
+        return view('employees.index', [
+            'initialSearch' => (string) request('search', ''),
+        ]);
     }
 
     public function data(Request $request)
@@ -64,14 +67,26 @@ class EmployeeController extends Controller
 
         $rows = $q->get();
 
-        $data = $rows->map(function ($e) {
+        $todayLogs = AttendanceLog::whereDate('work_date', now()->toDateString())
+            ->whereIn('employee_id', $rows->pluck('id'))
+            ->get(['employee_id', 'check_in', 'check_out', 'notes'])
+            ->keyBy('employee_id');
+
+        $data = $rows->map(function ($e) use ($todayLogs) {
+            $todayLog = $todayLogs->get($e->id);
+            $todayStatus = $this->employeeTodayStatusBadge($todayLog);
+
             return [
                 'id' => $e->id,
+                'employee_code' => sprintf('EMP-%04d', $e->id),
                 'full_name' => $e->full_name,
                 'email' => $e->email,
                 'phone' => $e->phone,
                 'job_title' => $e->job_title,
-                'status' => $e->is_active ? __('app.status_active') : __('app.status_inactive'),
+                'status_badge' => $e->is_active
+                    ? $this->badge('success', __('app.status_active'))
+                    : $this->badge('danger', __('app.status_inactive')),
+                'today_status_badge' => $todayStatus,
                 'actions' => view('employees.partials.actions', compact('e'))->render(),
             ];
         });
@@ -126,5 +141,35 @@ class EmployeeController extends Controller
         $employee->delete();
         AuditLog::record('employee.deleted', $employee);
         return response()->json(['ok' => true]);
+    }
+
+    private function employeeTodayStatusBadge($todayLog): string
+    {
+        if (!$todayLog) {
+            return $this->badge('neutral', __('app.status_not_checked'));
+        }
+
+        if (!$todayLog->check_in && !$todayLog->check_out && strcasecmp((string) $todayLog->notes, 'Absent') === 0) {
+            return $this->badge('danger', __('app.status_absent'));
+        }
+
+        if ($todayLog->check_in && $todayLog->check_out) {
+            return $this->badge('success', __('app.status_present'));
+        }
+
+        if ($todayLog->check_in) {
+            return $this->badge('warning', __('app.status_missing_checkout'));
+        }
+
+        return $this->badge('neutral', __('app.status_not_checked'));
+    }
+
+    private function badge(string $tone, string $label): string
+    {
+        return sprintf(
+            '<span class="ui-badge badge-%s"><span class="badge-dot"></span>%s</span>',
+            $tone,
+            e($label)
+        );
     }
 }

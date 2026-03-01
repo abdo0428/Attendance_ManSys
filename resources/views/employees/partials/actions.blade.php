@@ -1,9 +1,22 @@
-<div class="btn-group">
-  @can('employees.update')
-    <button class="btn btn-sm btn-outline-primary btn-edit" data-id="{{ $e->id }}">{{ __('app.btn_edit') }}</button>
-  @endcan
+<div class="dropdown">
+  <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+    {{ __('app.th_actions') }}
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    @can('employees.update')
+      <li>
+        <button class="dropdown-item btn-edit" type="button" data-id="{{ $e->id }}">
+          {{ __('app.btn_edit') }}
+        </button>
+      </li>
+    @endcan
 
-  @can('employees.delete')
-    <button class="btn btn-sm btn-outline-danger btn-delete" data-id="{{ $e->id }}">{{ __('app.btn_delete') }}</button>
-  @endcan
+    @can('employees.delete')
+      <li>
+        <button class="dropdown-item text-danger btn-delete" type="button" data-id="{{ $e->id }}">
+          {{ __('app.btn_delete') }}
+        </button>
+      </li>
+    @endcan
+  </ul>
 </div>

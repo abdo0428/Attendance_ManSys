@@ -53,7 +53,7 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label">{{ __('app.th_email') }}</label>
-                <input type="email" class="form-control" name="employee_email" placeholder="name@company.com">
+                <input type="email" class="form-control" name="employee_email" placeholder="{{ __('app.example_email') }}">
               </div>
               <div class="col-md-6">
                 <label class="form-label">{{ __('app.th_job') }}</label>
@@ -82,9 +82,9 @@
               <div class="col-md-4">
                 <label class="form-label">{{ __('app.default_language') }}</label>
                 <select class="form-select" name="default_locale" required>
-                  <option value="en" @selected($defaults['default_locale'] === 'en')>English</option>
-                  <option value="ar" @selected($defaults['default_locale'] === 'ar')>العربية</option>
-                  <option value="tr" @selected($defaults['default_locale'] === 'tr')>Türkçe</option>
+                  <option value="en" @selected($defaults['default_locale'] === 'en')>{{ __('app.lang_english') }}</option>
+                  <option value="ar" @selected($defaults['default_locale'] === 'ar')>{{ __('app.lang_arabic') }}</option>
+                  <option value="tr" @selected($defaults['default_locale'] === 'tr')>{{ __('app.lang_turkish') }}</option>
                 </select>
               </div>
             </div>

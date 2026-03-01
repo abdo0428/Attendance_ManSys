@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\Admin\CompanyAdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OnboardingController;
@@ -36,6 +37,12 @@ Route::get('/locale/{locale}', function (string $locale) {
 Route::middleware(['auth'])->group(function () {
     Route::get('/onboarding', [OnboardingController::class, 'index'])->name('onboarding');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
+});
+
+Route::middleware(['auth', 'role:super-admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/companies', [CompanyAdminController::class, 'index'])->name('companies.index');
+    Route::get('/companies/{company}', [CompanyAdminController::class, 'show'])->name('companies.show');
+    Route::patch('/companies/{company}', [CompanyAdminController::class, 'update'])->name('companies.update');
 });
 
 Route::middleware(['auth', 'onboarded'])->group(function () {
@@ -120,7 +127,3 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
-
-// need saas and multi-tenancy support,
-// make the admin can create users and edit it ,
-// edit views styles 

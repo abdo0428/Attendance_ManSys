@@ -1,0 +1,43 @@
+<?php
+
+return [
+    'required' => ':attribute alani zorunludur.',
+    'email' => ':attribute gecerli bir e-posta adresi olmalidir.',
+    'string' => ':attribute bir metin olmalidir.',
+    'integer' => ':attribute bir tam sayi olmalidir.',
+    'unique' => 'Bu :attribute zaten kullaniliyor.',
+    'exists' => 'Secilen :attribute gecersiz.',
+    'in' => 'Secilen :attribute gecersiz.',
+    'confirmed' => ':attribute dogrulamasi eslesmiyor.',
+    'current_password' => 'Mevcut sifre hatali.',
+    'date_format' => ':attribute bicimi gecersiz.',
+    'min' => [
+        'numeric' => ':attribute en az :min olmalidir.',
+        'string' => ':attribute en az :min karakter olmalidir.',
+    ],
+    'max' => [
+        'numeric' => ':attribute en fazla :max olabilir.',
+        'string' => ':attribute en fazla :max karakter olabilir.',
+    ],
+    'attributes' => [
+        'company_name' => 'sirket adi',
+        'name' => 'ad',
+        'email' => 'e-posta',
+        'password' => 'sifre',
+        'password_confirmation' => 'sifre onayi',
+        'current_password' => 'mevcut sifre',
+        'default_locale' => 'varsayilan dil',
+        'default_work_start' => 'varsayilan mesai baslangici',
+        'default_work_end' => 'varsayilan mesai bitisi',
+        'grace_minutes' => 'esneklik suresi',
+        'employee_full_name' => 'calisan adi',
+        'employee_email' => 'calisan e-postasi',
+        'employee_job_title' => 'calisan gorevi',
+        'employee_id' => 'calisan',
+        'check_in' => 'giris saati',
+        'check_out' => 'cikis saati',
+        'work_date' => 'calisma tarihi',
+        'month' => 'ay',
+        'role' => 'rol',
+    ],
+];

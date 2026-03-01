@@ -19,7 +19,37 @@ class AttendanceController extends Controller
             'default_work_start' => Setting::getValue('default_work_start', '09:00'),
             'default_work_end' => Setting::getValue('default_work_end', '17:00'),
         ];
-        return view('attendance.index', compact('employees', 'defaults'));
+        $todayLogs = AttendanceLog::whereDate('work_date', now()->toDateString())->get([
+            'employee_id',
+            'check_in',
+            'check_out',
+            'notes',
+        ]);
+
+        $present = $todayLogs
+            ->filter(fn ($log) => $log->check_in || $log->check_out)
+            ->pluck('employee_id')
+            ->unique()
+            ->count();
+
+        $absent = $todayLogs
+            ->filter(fn ($log) => !$log->check_in && !$log->check_out && strcasecmp((string) $log->notes, 'Absent') === 0)
+            ->pluck('employee_id')
+            ->unique()
+            ->count();
+
+        $summary = [
+            'present' => $present,
+            'absent' => $absent,
+            'pending' => max($employees->count() - $present - $absent, 0),
+        ];
+
+        return view('attendance.index', [
+            'employees' => $employees,
+            'defaults' => $defaults,
+            'summary' => $summary,
+            'initialSearch' => (string) request('search', ''),
+        ]);
     }
 
     public function data(Request $request)
@@ -44,6 +74,7 @@ class AttendanceController extends Controller
                 $sub->where('work_date', 'like', "%{$search}%")
                     ->orWhere('check_in', 'like', "%{$search}%")
                     ->orWhere('check_out', 'like', "%{$search}%")
+                    ->orWhere('notes', 'like', "%{$search}%")
                     ->orWhereHas('employee', fn($e) => $e->where('full_name', 'like', "%{$search}%"));
             });
         }
@@ -85,6 +116,8 @@ class AttendanceController extends Controller
                 'check_in' => $r->check_in?->format('H:i'),
                 'check_out' => $r->check_out?->format('H:i'),
                 'worked_hours' => sprintf('%02d:%02d', $h, $m),
+                'status_badge' => $this->attendanceStatusBadge($r),
+                'notes' => $this->displayNote($r->notes),
                 'actions' => view('attendance.partials.actions', compact('r'))->render(),
             ];
         });
@@ -115,7 +148,7 @@ class AttendanceController extends Controller
 
         if ($log->check_out && $checkIn->gt($log->check_out)) {
             return response()->json([
-                'errors' => ['check_in_time' => ['Check-in must be before check-out.']]
+                'errors' => ['check_in_time' => [__('app.err_checkin_before_checkout')]]
             ], 422);
         }
 
@@ -146,7 +179,7 @@ class AttendanceController extends Controller
 
         if ($log->check_in && $checkOut->lt($log->check_in)) {
             return response()->json([
-                'errors' => ['check_out_time' => ['Check-out must be after check-in.']]
+                'errors' => ['check_out_time' => [__('app.err_checkout_after_checkin')]]
             ], 422);
         }
 
@@ -215,7 +248,7 @@ class AttendanceController extends Controller
 
         if ($log->check_in || $log->check_out) {
             return response()->json([
-                'errors' => ['work_date' => ['Cannot mark absent when check-in/out exists.']]
+                'errors' => ['work_date' => [__('app.err_absent_conflict')]]
             ], 422);
         }
 
@@ -226,5 +259,44 @@ class AttendanceController extends Controller
         AuditLog::record('attendance.absent', $log, ['work_date' => $workDate]);
 
         return response()->json(['ok' => true]);
+    }
+
+    private function attendanceStatusBadge(AttendanceLog $log): string
+    {
+        if (!$log->check_in && !$log->check_out && strcasecmp((string) $log->notes, 'Absent') === 0) {
+            return $this->badge('danger', __('app.status_absent'));
+        }
+
+        if ($log->check_in && $log->check_out) {
+            return $this->badge('success', __('app.status_completed'));
+        }
+
+        if ($log->check_in) {
+            return $this->badge('warning', __('app.status_missing_checkout'));
+        }
+
+        return $this->badge('neutral', __('app.status_pending'));
+    }
+
+    private function badge(string $tone, string $label): string
+    {
+        return sprintf(
+            '<span class="ui-badge badge-%s"><span class="badge-dot"></span>%s</span>',
+            $tone,
+            e($label)
+        );
+    }
+
+    private function displayNote(?string $note): string
+    {
+        if ($note === null || $note === '') {
+            return '-';
+        }
+
+        if (strcasecmp($note, 'Absent') === 0) {
+            return __('app.status_absent');
+        }
+
+        return $note;
     }
 }

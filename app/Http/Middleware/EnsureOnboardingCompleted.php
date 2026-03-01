@@ -11,6 +11,10 @@ class EnsureOnboardingCompleted
     {
         $user = $request->user();
 
+        if ($user && method_exists($user, 'hasRole') && $user->hasRole('super-admin')) {
+            return $next($request);
+        }
+
         if ($user && !$user->onboarded_at) {
             if ($request->routeIs('onboarding') || $request->routeIs('onboarding.store')) {
                 return $next($request);
@@ -22,4 +26,3 @@ class EnsureOnboardingCompleted
         return $next($request);
     }
 }
-

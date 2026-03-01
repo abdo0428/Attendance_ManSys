@@ -20,14 +20,17 @@ class RolesAndAdminSeeder extends Seeder
             'reports.view',
             'settings.manage','users.manage','audit.view',
         ];
+        $superPerms = ['companies.manage'];
+        $allPerms = array_unique(array_merge($perms, $superPerms));
 
-        foreach ($perms as $p) {
+        foreach ($allPerms as $p) {
             Permission::firstOrCreate(['name' => $p]);
         }
 
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $hrRole    = Role::firstOrCreate(['name' => 'hr']);
         $viewerRole= Role::firstOrCreate(['name' => 'viewer']);
+        $superRole = Role::firstOrCreate(['name' => 'super-admin']);
 
         $adminRole->syncPermissions($perms);
         $hrRole->syncPermissions([
@@ -38,6 +41,7 @@ class RolesAndAdminSeeder extends Seeder
         $viewerRole->syncPermissions([
             'employees.view','attendance.view','reports.view'
         ]);
+        $superRole->syncPermissions($superPerms);
 
         $company = Company::firstOrCreate(['name' => 'Default Company']);
         Setting::setValue('company_name', $company->name, $company->id);
@@ -55,5 +59,15 @@ class RolesAndAdminSeeder extends Seeder
             $company->save();
         }
         $admin->assignRole('admin');
+
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'superadmin@test.com'],
+            ['name' => 'Super Admin', 'password' => Hash::make('123456789')]
+        );
+        if ($superAdmin->company_id !== null) {
+            $superAdmin->company_id = null;
+            $superAdmin->save();
+        }
+        $superAdmin->assignRole('super-admin');
     }
 }
